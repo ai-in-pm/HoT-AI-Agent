@@ -6,6 +6,12 @@ The development of this repository was inspired by the paper "HoT: Highlighted C
 
 To read the entire paper, visit https://arxiv.org/pdf/2503.02003.
 
+![image](https://github.com/user-attachments/assets/d1abd334-17ef-4a51-bc3d-6f618d39c643)
+![image](https://github.com/user-attachments/assets/8aa1d1fd-05ff-486c-8ead-173287168e44)
+![image](https://github.com/user-attachments/assets/85e85376-1156-4a98-9496-82e18397f4f8)
+![image](https://github.com/user-attachments/assets/d13c042a-ef6b-4840-b820-3c26e81272f6)
+![image](https://github.com/user-attachments/assets/cca903ec-642c-4d46-8072-7f03a94ba21b)
+
 ## Features
 
 - Question parsing and fact tagging
