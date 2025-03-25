@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoT AI Agent</title>
+    <style>
+        /* Inline styles to ensure proper rendering */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            color: #1a73e8;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+
+        header p {
+            color: #5f6368;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        main {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        @media (min-width: 960px) {
+            main {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Question Section */
+        .question-section {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-section h2 {
+            margin-bottom: 15px;
+            color: #202124;
+        }
+
+        .example-questions {
+            margin-bottom: 20px;
+        }
+
+        .example-questions label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #5f6368;
+        }
+
+        .example-questions select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .try-example-btn {
+            background-color: #34a853;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .try-example-btn:hover {
+            background-color: #2d914b;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #5f6368;
+        }
+
+        .divider:before, .divider:after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #dadce0;
+        }
+
+        .divider span {
+            padding: 0 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        #questionInput {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+
+        #questionInput:focus {
+            border-color: #1a73e8;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+
+        #submitBtn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        #submitBtn:hover {
+            background-color: #1669d9;
+        }
+
+        #submitBtn:disabled {
+            background-color: #dadce0;
+            cursor: not-allowed;
+        }
+
+        .clear-btn {
+            background-color: transparent;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+
+        .clear-btn:hover {
+            background-color: #f1f3f4;
+            color: #202124;
+        }
+
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Answer Section */
+        .answer-section {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .answer-section h2 {
+            margin-bottom: 15px;
+            color: #202124;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tagged-content {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #1a73e8;
+            margin-bottom: 20px;
+            overflow-wrap: break-word;
+            font-size: 16px;
+            line-height: 1.6;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .answer-content {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #34a853;
+            overflow-wrap: break-word;
+            font-size: 16px;
+            line-height: 1.8;
+            min-height: 50px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #ffffff;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: #f8f9fa;
+        }
+
+        .theme-toggle i {
+            font-size: 16px;
+        }
+
+        /* Fact Highlighting */
+        fact1, fact2, fact3, fact4, fact5, fact6, fact7, fact8, fact9, fact10,
+        fact11, fact12, fact13, fact14, fact15 {
+            background-color: #ffeb3b;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            display: inline;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            color: #5f6368;
+            margin-bottom: 15px;
+        }
+
+        .dot {
+            animation: blink 1.4s infinite both;
+            margin-left: 2px;
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 0.2;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.2;
+            }
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background-color: #202124;
+            color: #e8eaed;
+        }
+
+        body.dark-mode header,
+        body.dark-mode .question-section,
+        body.dark-mode .answer-section {
+            background-color: #303134;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        body.dark-mode header h1 {
+            color: #8ab4f8;
+        }
+
+        body.dark-mode header p,
+        body.dark-mode h2,
+        body.dark-mode .example-questions label {
+            color: #bdc1c6;
+        }
+
+        body.dark-mode #questionInput,
+        body.dark-mode .example-questions select {
+            background-color: #303134;
+            border-color: #5f6368;
+            color: #e8eaed;
+        }
+
+        body.dark-mode .tagged-content,
+        body.dark-mode .answer-content {
+            background-color: #252629;
+        }
+
+        body.dark-mode .theme-toggle {
+            background-color: #303134;
+            color: #bdc1c6;
+            border-color: #5f6368;
+        }
+
+        body.dark-mode .divider:before,
+        body.dark-mode .divider:after {
+            border-color: #5f6368;
+        }
+
+        body.dark-mode .divider span {
+            color: #bdc1c6;
+        }
+
+        /* Footer Styles */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode footer {
+            color: #9aa0a6;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">
+        <i class="toggle-icon">☀️</i>
+        <span class="toggle-text">Light Mode</span>
+    </button>
+
+    <div class="container">
+        <header>
+            <h1>Highlighted Chain-of-Thought (HoT) AI Agent</h1>
+            <p>Ask a question and receive answers with transparent, PhD-level reasoning</p>
+        </header>
+        
+        <main>
+            <div class="question-section">
+                <h2>Your Question</h2>
+                
+                <div class="example-questions">
+                    <label for="exampleSelect">Try one of these example questions:</label>
+                    <select id="exampleSelect">
+                        <option value="">-- Select an example question --</option>
+                        <option value="If Earth is 149.6 million km from the Sun and light travels at 299,792 km/s, how long does it take for sunlight to reach Earth?">Light from Sun to Earth</option>
+                        <option value="A farmer has 15 cows and 27 chickens. If each cow produces 28 liters of milk per week and each chicken lays 5 eggs per week, what's the total weekly production?">Farm Production</option>
+                        <option value="The boiling point of water is 100°C at sea level but decreases by about 1°C for every 285m increase in altitude. What is the approximate boiling point at Denver, which is 1609m above sea level?">Boiling Point at Altitude</option>
+                    </select>
+                    <button id="loadExampleBtn" class="try-example-btn">Load Selected Question</button>
+                </div>
+                
+                <div class="divider">
+                    <span>OR</span>
+                </div>
+
+                <form id="questionForm">
+                    <textarea id="questionInput" placeholder="Enter your own question here..."></textarea>
+                    <div class="btn-row">
+                        <button type="submit" id="submitBtn">Submit Question</button>
+                        <button type="button" id="clearBtn" class="clear-btn">Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="answer-section" id="answerSection">
+                <div class="hidden" id="questionDisplay">
+                    <h2>Tagged Question</h2>
+                    <div id="taggedQuestion" class="tagged-content"></div>
+                </div>
+                
+                <div class="hidden" id="answerDisplay">
+                    <h2>Answer</h2>
+                    <div id="loadingIndicator" class="loading">
+                        <span>Thinking</span>
+                        <span class="dot">.</span>
+                        <span class="dot">.</span>
+                        <span class="dot">.</span>
+                    </div>
+                    <div id="answerText" class="answer-content"></div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Powered by ChatGPT-4 and Highlighted Chain-of-Thought (HoT) framework</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const questionForm = document.getElementById('questionForm');
+            const questionInput = document.getElementById('questionInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const answerSection = document.getElementById('answerSection');
+            const questionDisplay = document.getElementById('questionDisplay');
+            const taggedQuestion = document.getElementById('taggedQuestion');
+            const answerDisplay = document.getElementById('answerDisplay');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const answerText = document.getElementById('answerText');
+            const exampleSelect = document.getElementById('exampleSelect');
+            const loadExampleBtn = document.getElementById('loadExampleBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            // Theme toggle functionality
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                if (document.body.classList.contains('dark-mode')) {
+                    themeToggle.querySelector('.toggle-icon').textContent = '🌙';
+                    themeToggle.querySelector('.toggle-text').textContent = 'Dark Mode';
+                } else {
+                    themeToggle.querySelector('.toggle-icon').textContent = '☀️';
+                    themeToggle.querySelector('.toggle-text').textContent = 'Light Mode';
+                }
+            });
+            
+            // Load example question
+            loadExampleBtn.addEventListener('click', () => {
+                const selectedQuestion = exampleSelect.value;
+                if (selectedQuestion) {
+                    questionInput.value = selectedQuestion;
+                    questionInput.focus();
+                }
+            });
+            
+            // Clear button functionality
+            clearBtn.addEventListener('click', () => {
+                questionInput.value = '';
+                questionDisplay.classList.add('hidden');
+                answerDisplay.classList.add('hidden');
+                questionInput.focus();
+            });
+            
+            // Submit question
+            questionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const question = questionInput.value.trim();
+                
+                if (!question) {
+                    alert('Please enter a question');
+                    return;
+                }
+                
+                // Disable submit button and show loading
+                submitBtn.disabled = true;
+                questionDisplay.classList.add('hidden');
+                answerDisplay.classList.remove('hidden');
+                loadingIndicator.style.display = 'flex';
+                answerText.innerHTML = '';
+                answerSection.scrollIntoView({ behavior: 'smooth' });
+                
+                try {
+                    // Send request to backend
+                    const response = await fetch('/api/query', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ question })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+                    
+                    // Set up EventSource for streaming response
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+                    
+                    // Hide loading indicator once we start receiving the answer
+                    loadingIndicator.style.display = 'none';
+                    
+                    // Process the stream
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        
+                        if (done) {
+                            break;
+                        }
+                        
+                        // Decode the chunk and add to buffer
+                        buffer += decoder.decode(value, { stream: true });
+                        
+                        // Process complete SSE messages
+                        const lines = buffer.split('\n\n');
+                        buffer = lines.pop(); // Keep the last potentially incomplete line in buffer
+                        
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const content = line.substring(6); // Remove 'data: ' prefix
+                                
+                                if (content === '[DONE]') {
+                                    // End of stream
+                                    break;
+                                } else if (!content.startsWith('Error:')) {
+                                    // Add content to answer
+                                    answerText.innerHTML += content;
+                                    typeSimulationScroll();
+                                } else {
+                                    // Show error
+                                    answerText.innerHTML += `<span style="color: red;">${content}</span>`;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Now that we have the answer, show the tagged question
+                    // First, extract the tagged question from the original
+                    const factRegex = /<fact(\d+)>([^<]+)<\/fact\1>/g;
+                    let taggedQuestionText = question;
+                    const facts = [];
+                    
+                    // Extract facts from the answer
+                    let match;
+                    while ((match = factRegex.exec(answerText.innerHTML)) !== null) {
+                        const factNumber = match[1];
+                        const factContent = match[2];
+                        if (!facts.includes(factContent)) {
+                            facts.push({ number: factNumber, content: factContent });
+                        }
+                    }
+                    
+                    // Add tags to the question based on facts found in the answer
+                    for (const fact of facts) {
+                        const factRegex = new RegExp(`\\b${escapeRegExp(fact.content)}\\b`, 'i');
+                        taggedQuestionText = taggedQuestionText.replace(
+                            factRegex, 
+                            `<fact${fact.number}>${fact.content}</fact${fact.number}>`
+                        );
+                    }
+                    
+                    // Display tagged question
+                    taggedQuestion.innerHTML = taggedQuestionText;
+                    questionDisplay.classList.remove('hidden');
+                    
+                    // Add hover effect for fact highlighting
+                    addFactHoverEffects();
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    answerText.innerHTML = `<span style="color: red;">Error: ${error.message}</span>`;
+                    loadingIndicator.style.display = 'none';
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+            
+            // Function to handle typing simulation scrolling
+            function typeSimulationScroll() {
+                // Auto-scroll to bottom of answer as it's being typed
+                answerText.scrollTop = answerText.scrollHeight;
+            }
+            
+            // Function to add hover effects to fact tags
+            function addFactHoverEffects() {
+                // For each fact tag in both the question and answer
+                const factTags = document.querySelectorAll('fact1, fact2, fact3, fact4, fact5, fact6, fact7, fact8, fact9, fact10, fact11, fact12, fact13, fact14, fact15');
+                
+                factTags.forEach(factElement => {
+                    const tagName = factElement.tagName.toLowerCase();
+                    const factNumber = tagName.replace('fact', '');
+                    
+                    // Add hover event listeners
+                    factElement.addEventListener('mouseenter', () => {
+                        // Highlight all instances of this fact
+                        document.querySelectorAll(tagName).forEach(el => {
+                            el.style.boxShadow = '0 0 0 2px #f44336';
+                        });
+                    });
+                    
+                    factElement.addEventListener('mouseleave', () => {
+                        // Remove highlight
+                        document.querySelectorAll(tagName).forEach(el => {
+                            el.style.boxShadow = 'none';
+                        });
+                    });
+                });
+            }
+            
+            // Helper function to escape special characters in regex
+            function escapeRegExp(string) {
+                return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            }
+        });
+    </script>
+</body>
+</html>
